@@ -1,0 +1,101 @@
+plugins {
+	id 'com.github.johnrengelman.shadow' version '5.0.0'
+	id 'java'
+}
+
+
+defaultTasks 'build'
+
+
+group 'org.hurricanegames'
+version '1.0'
+
+
+File targetJarDirectory = new File("target")
+
+task setupFolders(type: DefaultTask) {doLast{
+	targetJarDirectory.mkdirs()
+}}
+
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+
+sourceSets {
+	main {
+		java {
+			srcDirs = ['src']
+		}
+		resources {
+			srcDirs = ['resources']
+		}
+	}
+}
+
+repositories {
+	mavenCentral()
+	jcenter()
+	maven {
+		url 'https://oss.sonatype.org/content/repositories/snapshots/'
+	}
+	maven {
+		url 'https://hub.spigotmc.org/nexus/content/repositories/public/'
+	}
+	maven {
+		url 'https://papermc.io/repo/repository/maven-public/'
+	}
+	maven {
+		url 'https://jitpack.io'
+	}
+    maven {
+    	url 'https://repo.dmulloy2.net/nexus/repository/public/'
+    }
+	maven {
+		url 'http://repo.extendedclip.com/content/repositories/placeholderapi/'
+	}
+}
+
+dependencies {
+	compile group: 'com.github.HurricaneGamesOrg', name: 'HurricaneGamesCommandLib', version: '24492a6f23'
+	compileOnly group: 'com.destroystokyo.paper', name: 'paper-api', version: '1.15.1-R0.1-SNAPSHOT'
+	compileOnly group: 'me.clip', name: 'placeholderapi', version: '2.10.4'
+	compileOnly group: 'com.comphenix.protocol', name: 'ProtocolLib', version: '4.5.0'
+	compileOnly group: 'com.github.ProtocolSupport', name: 'ProtocolSupport', version: 'a82f2b4627'
+}
+
+compileJava {
+	options.encoding = 'UTF-8'
+	options.incremental = false
+}
+
+
+String relocatePrefix = group + "." + rootProject.name.toLowerCase() + ".zlibs."
+
+shadowJar {
+	doFirst {
+		new File(destinationDir, archiveName).delete()
+	}
+
+	from sourceSets.main.java.srcDirs
+
+	archiveName = jar.archiveName
+
+	relocate 'org.hurricanegames.commandlib', relocatePrefix + 'org.hurricanegames.commandlib'
+
+	minimize()
+}
+
+
+task copyFinalJarToTarget(type: DefaultTask) {doLast{
+	java.nio.file.Files.copy(
+		shadowJar.archivePath.getAbsoluteFile().toPath(),
+		new File(targetJarDirectory, jar.baseName + '.jar').getAbsoluteFile().toPath(),
+		java.nio.file.StandardCopyOption.REPLACE_EXISTING
+	)
+}}
+
+
+compileJava.dependsOn(clean)
+compileJava.dependsOn(setupFolders)
+jar.enabled = false
+jar.finalizedBy(shadowJar)
+shadowJar.finalizedBy(copyFinalJarToTarget)
