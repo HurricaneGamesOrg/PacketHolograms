@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.hurricanegames.commandlib.commands.CommandBasic;
 import org.hurricanegames.packetholograms.holograms.Hologram;
+import org.hurricanegames.packetholograms.utils.MiscUtils;
 
 public abstract class PacketHologramsCommandBasic extends CommandBasic<PacketHologramsCommandHelper> {
 
@@ -69,7 +70,7 @@ public abstract class PacketHologramsCommandBasic extends CommandBasic<PacketHol
 
 		@Override
 		protected String parseValue(String arg) {
-			return arg;
+			return MiscUtils.colorize(arg);
 		}
 
 		@Override
