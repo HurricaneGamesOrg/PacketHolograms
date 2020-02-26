@@ -16,9 +16,9 @@ public class PacketHologramsHologramLineSetCommand extends PacketHologramsComman
 
 	@CommandHandler
 	protected void handleCommand(
-		@CommandArgumentDefinition(CommandArgumentHologram.class) Hologram hologram,
-		@CommandArgumentDefinition(CommandArgumentHologramLineIndex.class) Integer lineIndex,
-		@CommandArgumentDefinition(CommandArgumentHologramLineText.class) String lineText
+		@CommandArgumentDefinition(PacketHologramsCommandBasic.CommandArgumentHologram.class) Hologram hologram,
+		@CommandArgumentDefinition(PacketHologramsCommandBasic.CommandArgumentHologramLineIndex.class) Integer lineIndex,
+		@CommandArgumentDefinition(PacketHologramsCommandBasic.CommandArgumentHologramLineText.class) String lineText
 	) {
 		List<String> lines = new ArrayList<>(hologram.getLines());
 		String oldLine = lines.set(lineIndex.intValue(), lineText);

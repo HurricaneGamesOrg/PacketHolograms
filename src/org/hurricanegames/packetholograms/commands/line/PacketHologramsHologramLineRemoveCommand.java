@@ -16,8 +16,8 @@ public class PacketHologramsHologramLineRemoveCommand extends PacketHologramsCom
 
 	@CommandHandler
 	protected void handleCommand(
-		@CommandArgumentDefinition(CommandArgumentHologram.class) Hologram hologram,
-		@CommandArgumentDefinition(CommandArgumentHologramLineIndex.class) Integer lineIndex
+		@CommandArgumentDefinition(PacketHologramsCommandBasic.CommandArgumentHologram.class) Hologram hologram,
+		@CommandArgumentDefinition(PacketHologramsCommandBasic.CommandArgumentHologramLineIndex.class) Integer lineIndex
 	) {
 		List<String> lines = new ArrayList<>(hologram.getLines());
 		String removedLine = lines.remove(lineIndex.intValue());

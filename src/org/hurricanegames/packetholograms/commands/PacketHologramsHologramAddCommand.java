@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.hurricanegames.commandlib.commands.CommandBasic;
 import org.hurricanegames.commandlib.commands.CommandResponseException;
 import org.hurricanegames.packetholograms.holograms.Hologram;
 
@@ -37,9 +38,9 @@ public class PacketHologramsHologramAddCommand extends PacketHologramsCommandBas
 
 	@CommandHandler
 	protected void handleCommand(
-		@CommandArgumentDefinition(CommandArgumentSenderPlayer.class) Player player,
-		@CommandArgumentDefinition(CommandArgumentHologramNameNotExisting.class) String name,
-		@CommandArgumentDefinition(CommandArgumentHologramLineText.class) String line
+		@CommandArgumentDefinition(CommandBasic.CommandArgumentSenderPlayer.class) Player player,
+		@CommandArgumentDefinition(PacketHologramsHologramAddCommand.CommandArgumentHologramNameNotExisting.class) String name,
+		@CommandArgumentDefinition(PacketHologramsCommandBasic.CommandArgumentHologramLineText.class) String line
 	) {
 		Location location = player.getLocation();
 		helper.getHolograms().addHologram(new Hologram(name, location.getWorld().getName(), location.toVector(), Collections.singletonList(line)));

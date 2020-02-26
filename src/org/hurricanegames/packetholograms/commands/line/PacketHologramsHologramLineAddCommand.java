@@ -16,8 +16,8 @@ public class PacketHologramsHologramLineAddCommand extends PacketHologramsComman
 
 	@CommandHandler
 	protected void handleCommand(
-		@CommandArgumentDefinition(CommandArgumentHologram.class) Hologram hologram,
-		@CommandArgumentDefinition(CommandArgumentHologramLineText.class) String lineText
+		@CommandArgumentDefinition(PacketHologramsCommandBasic.CommandArgumentHologram.class) Hologram hologram,
+		@CommandArgumentDefinition(PacketHologramsCommandBasic.CommandArgumentHologramLineText.class) String lineText
 	) {
 		List<String> lines = new ArrayList<>(hologram.getLines());
 		lines.add(lineText);

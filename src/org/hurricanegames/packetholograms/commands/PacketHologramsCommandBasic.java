@@ -15,7 +15,7 @@ public abstract class PacketHologramsCommandBasic extends CommandBasic<PacketHol
 		super(helper);
 	}
 
-	@CommandArgumentDefinition(CommandArgumentHologram.class)
+	@CommandArgumentDefinition(PacketHologramsCommandBasic.CommandArgumentHologram.class)
 	protected class CommandArgumentHologram extends CommandArgumentPositional<Hologram> {
 
 		@Override
@@ -44,7 +44,7 @@ public abstract class PacketHologramsCommandBasic extends CommandBasic<PacketHol
 		protected final Supplier<Hologram> hologramSupplier;
 
 		protected CommandArgumentHologramLineIndex(
-			@CommandArgumentDefinition(CommandArgumentHologram.class) Supplier<Hologram> hologramSupplier
+			@CommandArgumentDefinition(PacketHologramsCommandBasic.CommandArgumentHologram.class) Supplier<Hologram> hologramSupplier
 		) {
 			this.hologramSupplier = hologramSupplier;
 		}

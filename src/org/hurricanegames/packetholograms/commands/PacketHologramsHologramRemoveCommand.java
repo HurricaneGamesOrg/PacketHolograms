@@ -12,7 +12,7 @@ public class PacketHologramsHologramRemoveCommand extends PacketHologramsCommand
 
 	@CommandHandler
 	protected void handleCommand(
-		@CommandArgumentDefinition(CommandArgumentHologram.class) Hologram hologram
+		@CommandArgumentDefinition(PacketHologramsCommandBasic.CommandArgumentHologram.class) Hologram hologram
 	) {
 		helper.getHolograms().deleteHologram(hologram);
 

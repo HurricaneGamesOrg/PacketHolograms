@@ -1,7 +1,5 @@
 package org.hurricanegames.packetholograms.commands;
 
-import java.io.File;
-
 import org.hurricanegames.commandlib.commands.CommandHelper;
 import org.hurricanegames.commandlib.commands.CommandMessages;
 import org.hurricanegames.commandlib.providers.messages.DefaultMessages;
@@ -14,15 +12,7 @@ public class PacketHologramsCommandHelper extends CommandHelper<CommandMessages,
 	protected final HologramController holograms;
 
 	public PacketHologramsCommandHelper(HologramController holograms) {
-		super(
-			new DefaultMessages() {
-				@Override
-				protected File getStorageFile() {
-					return null;
-				}
-			},
-			new BukkitPlayerInfoProvider()
-		);
+		super(DefaultMessages.IMMUTABLE, BukkitPlayerInfoProvider.INSTANCE);
 		this.holograms = holograms;
 	}
 
