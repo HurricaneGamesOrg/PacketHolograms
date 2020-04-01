@@ -55,7 +55,7 @@ repositories {
 }
 
 dependencies {
-	compile group: 'com.github.HurricaneGamesOrg', name: 'HurricaneGamesCommandLib', version: '5d7b690a2f'
+	compile group: 'com.github.HurricaneGamesOrg', name: 'HurricaneGamesCommandLib', version: 'a7b3671986'
 	compileOnly group: 'com.destroystokyo.paper', name: 'paper-api', version: '1.15.1-R0.1-SNAPSHOT'
 	compileOnly group: 'me.clip', name: 'placeholderapi', version: '2.10.4'
 	compileOnly group: 'com.comphenix.protocol', name: 'ProtocolLib', version: '4.5.0'
