@@ -22,7 +22,7 @@ public class PacketHologramsHologramLineSetCommand extends PacketHologramsComman
 	) {
 		List<String> lines = new ArrayList<>(hologram.getLines());
 		String oldLine = lines.set(lineIndex.intValue(), lineText);
-		helper.getHolograms().modifyLinesHologram(hologram, lines);
+		helper.getHolograms().setHologramLines(hologram, lines);
 
 		throw new CommandResponseException("Hologram {0} line {1} changed to {2}", hologram.getName(), oldLine, lineText);
 	}

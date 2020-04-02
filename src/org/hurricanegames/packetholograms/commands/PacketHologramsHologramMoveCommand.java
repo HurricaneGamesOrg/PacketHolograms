@@ -18,7 +18,7 @@ public class PacketHologramsHologramMoveCommand extends PacketHologramsCommandBa
 		@CommandArgumentDefinition(PacketHologramsCommandBasic.CommandArgumentHologram.class) Hologram hologram
 	) {
 		Location location = player.getLocation();
-		helper.getHolograms().moveHologram(hologram, location.getWorld().getName(), location.toVector());
+		helper.getHolograms().setHologramLocation(hologram, location.getWorld().getName(), location.toVector());
 
 		throw new CommandResponseException("Hologram {0} moved", hologram.getName());
 	}

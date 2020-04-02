@@ -21,7 +21,7 @@ public class PacketHologramsHologramLineAddCommand extends PacketHologramsComman
 	) {
 		List<String> lines = new ArrayList<>(hologram.getLines());
 		lines.add(lineText);
-		helper.getHolograms().modifyLinesHologram(hologram, lines);
+		helper.getHolograms().setHologramLines(hologram, lines);
 
 		throw new CommandResponseException("Hologram {0} line {1} added", hologram.getName(), lineText);
 	}

@@ -22,7 +22,7 @@ public class PacketHologramsHologramLineRemoveCommand extends PacketHologramsCom
 		List<String> lines = new ArrayList<>(hologram.getLines());
 		String removedLine = lines.remove(lineIndex.intValue());
 
-		helper.getHolograms().modifyLinesHologram(hologram, lines);
+		helper.getHolograms().setHologramLines(hologram, lines);
 
 		throw new CommandResponseException("Hologram {0} line {1} removed", hologram.getName(), removedLine);
 	}

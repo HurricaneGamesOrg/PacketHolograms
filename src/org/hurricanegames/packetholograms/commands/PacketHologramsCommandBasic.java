@@ -28,7 +28,7 @@ public abstract class PacketHologramsCommandBasic extends CommandBasic<PacketHol
 			return
 				helper.getHolograms().getHolograms().stream()
 				.map(Hologram::getName)
-				.filter(name -> name.startsWith(arg))
+				.filter(name -> (name != null) && name.startsWith(arg))
 				.collect(Collectors.toList());
 		}
 

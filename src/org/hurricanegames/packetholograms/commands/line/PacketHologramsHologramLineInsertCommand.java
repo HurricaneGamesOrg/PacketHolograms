@@ -23,7 +23,7 @@ public class PacketHologramsHologramLineInsertCommand extends PacketHologramsCom
 		List<String> lines = new ArrayList<>(hologram.getLines());
 		lines.add(lineIndex.intValue(), lineText);
 
-		helper.getHolograms().modifyLinesHologram(hologram, lines);
+		helper.getHolograms().setHologramLines(hologram, lines);
 
 		throw new CommandResponseException("Hologram {0} line {1} inserted", hologram.getName(), lineText);
 	}

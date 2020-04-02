@@ -10,10 +10,16 @@ import org.bukkit.util.Vector;
 
 public class Hologram {
 
+	public static final double LINE_H = 0.25;
+
 	private final String name;
 	private final String world;
 	private final Vector location;
 	private final List<String> lines;
+
+	public Hologram(String world, Vector location, List<String> lines) {
+		this(null, world, location, lines);
+	}
 
 	public Hologram(String name, String world, Vector location, List<String> lines) {
 		this.name = name;

@@ -13,6 +13,10 @@ public class PacketHologramsPlugin extends JavaPlugin {
 
 	private HologramController controller;
 
+	public HologramController getController() {
+		return controller;
+	}
+
 	@Override
 	public void onEnable() {
 		PlaceholderAPIIntergration.init();

@@ -1,7 +1,7 @@
 package org.hurricanegames.packetholograms.holograms;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,6 +22,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.Vector;
+import org.hurricanegames.commandlib.configurations.ConfigurationUtils;
 import org.hurricanegames.packetholograms.EntityIdAllocator;
 import org.hurricanegames.packetholograms.PacketHologramsPlugin;
 import org.hurricanegames.packetholograms.integrations.PlaceholderAPIIntergration;
@@ -79,7 +80,7 @@ public class HologramController {
 
 	public void addHologram(Hologram hologram) {
 		String name = hologram.getName();
-		if (hologramByName.containsKey(name)) {
+		if ((name != null) && hologramByName.containsKey(name)) {
 			throw new IllegalArgumentException("Hologram " + name + " already exists");
 		}
 
@@ -106,7 +107,10 @@ public class HologramController {
 	}
 
 	protected void addHologram0(Hologram hologram) {
-		hologramByName.put(hologram.getName(), hologram);
+		String name = hologram.getName();
+		if (name != null) {
+			hologramByName.put(name, hologram);
+		}
 		hologramsByLocation
 		.computeIfAbsent(hologram.getWorld(), k -> new ConcurrentHashMap<>())
 		.computeIfAbsent(XZCoord.getChunkCoord(hologram.getLocation()), k -> Collections.newSetFromMap(new ConcurrentHashMap<>()))
@@ -116,7 +120,10 @@ public class HologramController {
 	public void deleteHologram(Hologram hologram) {
 		XZCoord chunkCoord = XZCoord.getChunkCoord(hologram.getLocation());
 
-		hologramByName.remove(hologram.getName());
+		String name = hologram.getName();
+		if (name != null) {
+			hologramByName.remove(name);
+		}
 		hologramsByLocation
 		.getOrDefault(hologram.getWorld(), Collections.emptyMap())
 		.getOrDefault(chunkCoord, Collections.emptySet())
@@ -136,7 +143,7 @@ public class HologramController {
 		save();
 	}
 
-	public Hologram moveHologram(Hologram hologram, String world, Vector location) {
+	public Hologram setHologramLocation(Hologram hologram, String world, Vector location) {
 		deleteHologram(hologram);
 
 		Hologram newHologram = new Hologram(hologram.getName(), world, location, hologram.getLines());
@@ -147,7 +154,7 @@ public class HologramController {
 		return newHologram;
 	}
 
-	public Hologram modifyLinesHologram(Hologram hologram, List<String> lines) {
+	public Hologram setHologramLines(Hologram hologram, List<String> lines) {
 		deleteHologram(hologram);
 
 		Hologram newHologram = new Hologram(hologram.getName(), hologram.getWorld(), hologram.getLocation(), lines);
@@ -166,7 +173,6 @@ public class HologramController {
 		return visible.get(chunkcoord);
 	}
 
-	protected static final double LINE_H = 0.25;
 	protected void spawnHologram(Map<Hologram, int[]> chunkHolograms, List<Object> packets, Hologram hologram, OfflinePlayer player) {
 		List<String> lines = hologram.getLines();
 		int[] entityIds = new int[lines.size()];
@@ -197,7 +203,7 @@ public class HologramController {
 					Optional.of(WrappedChatComponent.fromText(PlaceholderAPIIntergration.setBracketPlaceholders(player, lines.get(i))).getHandle())
 				)
 			)));
-			location.setY(location.getY() - LINE_H);
+			location.setY(location.getY() - Hologram.LINE_H);
 		}
 		chunkHolograms.put(hologram, entityIds);
 	}
@@ -321,8 +327,8 @@ public class HologramController {
 			}
 		}
 		try {
-			configuration.save(storageFile);
-		} catch (IOException e) {
+			ConfigurationUtils.safeSave(configuration, storageFile);
+		} catch (UncheckedIOException e) {
 			plugin.getLogger().log(Level.SEVERE, "Unable to save hologram controller storage", e);
 		}
 	}
