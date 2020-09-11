@@ -11,11 +11,12 @@ group 'org.hurricanegames'
 version '1.1'
 
 
-File targetJarDirectory = new File("target")
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.Files
 
-task setupFolders(type: DefaultTask) {doLast{
-	targetJarDirectory.mkdirs()
-}}
+
+Path projectDirectoryPath = projectDir.toPath().toAbsolutePath()
 
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -43,19 +44,19 @@ repositories {
 	maven {
 		url 'https://papermc.io/repo/repository/maven-public/'
 	}
-	maven {
-		url 'https://jitpack.io'
-	}
     maven {
     	url 'https://repo.dmulloy2.net/nexus/repository/public/'
     }
 	maven {
 		url 'http://repo.extendedclip.com/content/repositories/placeholderapi/'
 	}
+	maven {
+		url 'https://jitpack.io'
+	}
 }
 
 dependencies {
-	compile group: 'com.github.HurricaneGamesOrg', name: 'HurricaneGamesCommandLib', version: 'a7b3671986'
+	compile group: 'com.github.HurricaneGamesOrg', name: 'HurricaneGamesCommandLib', version: '7814283599'
 	compileOnly group: 'com.destroystokyo.paper', name: 'paper-api', version: '1.15.1-R0.1-SNAPSHOT'
 	compileOnly group: 'me.clip', name: 'placeholderapi', version: '2.10.4'
 	compileOnly group: 'com.comphenix.protocol', name: 'ProtocolLib', version: '4.5.0'
@@ -86,16 +87,17 @@ shadowJar {
 
 
 task copyFinalJarToTarget(type: DefaultTask) {doLast{
-	java.nio.file.Files.copy(
-		shadowJar.archivePath.getAbsoluteFile().toPath(),
-		new File(targetJarDirectory, jar.baseName + '.jar').getAbsoluteFile().toPath(),
+	Path targetJarDirectory = projectDirectoryPath.resolve("target")
+	Files.createDirectories(targetJarDirectory)
+	Files.copy(
+		shadowJar.archivePath.toPath().toAbsolutePath(),
+		targetJarDirectory.resolve(shadowJar.baseName + '.jar'),
 		java.nio.file.StandardCopyOption.REPLACE_EXISTING
 	)
 }}
 
 
 compileJava.dependsOn(clean)
-compileJava.dependsOn(setupFolders)
 jar.enabled = false
 jar.finalizedBy(shadowJar)
 shadowJar.finalizedBy(copyFinalJarToTarget)
