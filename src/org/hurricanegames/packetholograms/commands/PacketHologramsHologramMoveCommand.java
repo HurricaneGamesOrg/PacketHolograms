@@ -2,9 +2,9 @@ package org.hurricanegames.packetholograms.commands;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.hurricanegames.commandlib.commands.CommandBasic;
-import org.hurricanegames.commandlib.commands.CommandResponseException;
 import org.hurricanegames.packetholograms.holograms.Hologram;
+import org.hurricanegames.pluginlib.commands.CommandBasic;
+import org.hurricanegames.pluginlib.commands.CommandResponseException;
 
 public class PacketHologramsHologramMoveCommand extends PacketHologramsCommandBasic {
 

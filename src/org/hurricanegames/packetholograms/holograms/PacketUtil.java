@@ -7,6 +7,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.util.Vector;
 
 import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher.Registry;
@@ -18,10 +19,7 @@ import protocolsupport.api.MaterialAPI;
 
 public class PacketUtil {
 
-	protected final ProtocolManager protocollib;
-	protected PacketUtil(ProtocolManager protocollib) {
-		this.protocollib = protocollib;
-	}
+	protected final ProtocolManager protocollib = ProtocolLibrary.getProtocolManager();
 
 	protected static final int ARMORSTAND_LIVING_TYPE_ID = MaterialAPI.getEntityLivingTypeNetworkId(EntityType.ARMOR_STAND);
 	protected static final Serializer DW_BYTE_SERIALIZER = Registry.get(Byte.class, false);
@@ -31,7 +29,7 @@ public class PacketUtil {
 	protected static final int DW_BASE_FLAGS_INVISIBLE_OFFSET = 0x20;
 	protected static final int DW_BASE_NAME_INDEX = 2;
 	protected static final int DW_BASE_NAME_VISIBLE_INDEX = 3;
-	protected static final int DW_ARMORSTANDDATA_INDEX = 14;
+	protected static final int DW_ARMORSTANDDATA_INDEX = 15;
 	protected static final int DW_ARMORSTANDDATA_MARKER_OFFSET = 0x10;
 
 	protected Object createEntitySpawnPacket(int type, UUID uuid, int entityId, Vector location) {
@@ -47,9 +45,9 @@ public class PacketUtil {
 		return packet.getHandle();
 	}
 
-	protected Object createEntityDestroyPacket(int... entityIds) {
+	protected Object createEntityDestroyPacket(int entityId) {
 		PacketContainer packet = protocollib.createPacket(PacketType.Play.Server.ENTITY_DESTROY);
-		packet.getIntegerArrays().write(0, entityIds);
+		packet.getIntegers().write(0, entityId);
 		return packet.getHandle();
 	}
 

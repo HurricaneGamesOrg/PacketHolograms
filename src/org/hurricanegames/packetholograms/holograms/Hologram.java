@@ -44,6 +44,7 @@ public class Hologram {
 		return Collections.unmodifiableList(lines);
 	}
 
+
 	protected static final String world_path = "world";
 	protected static final String location_path = "location";
 	protected static final String lines_path = "lines";

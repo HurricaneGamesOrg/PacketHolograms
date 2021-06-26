@@ -1,6 +1,7 @@
 plugins {
-	id 'com.github.johnrengelman.shadow' version '5.0.0'
 	id 'java'
+	id 'com.github.johnrengelman.shadow' version '7.0.0'
+	id 'maven-publish'
 }
 
 
@@ -8,7 +9,7 @@ defaultTasks 'build'
 
 
 group 'org.hurricanegames'
-version '1.1'
+version '1.2'
 
 
 import java.nio.file.Path
@@ -19,7 +20,7 @@ import java.nio.file.Files
 Path projectDirectoryPath = projectDir.toPath().toAbsolutePath()
 
 
-sourceCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_16
 
 sourceSets {
 	main {
@@ -34,7 +35,6 @@ sourceSets {
 
 repositories {
 	mavenCentral()
-	jcenter()
 	maven {
 		url 'https://oss.sonatype.org/content/repositories/snapshots/'
 	}
@@ -48,19 +48,30 @@ repositories {
     	url 'https://repo.dmulloy2.net/nexus/repository/public/'
     }
 	maven {
-		url 'http://repo.extendedclip.com/content/repositories/placeholderapi/'
+		url 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
 	}
 	maven {
 		url 'https://jitpack.io'
 	}
 }
 
+configurations {
+	runtimeDependencies
+	compileOnly {
+		extendsFrom runtimeDependencies
+	}
+	testImplementation {
+	    extendsFrom runtimeDependencies
+	}
+}
+
 dependencies {
-	compile group: 'com.github.HurricaneGamesOrg', name: 'HurricaneGamesCommandLib', version: '7814283599'
-	compileOnly group: 'com.destroystokyo.paper', name: 'paper-api', version: '1.15.1-R0.1-SNAPSHOT'
-	compileOnly group: 'me.clip', name: 'placeholderapi', version: '2.10.4'
-	compileOnly group: 'com.comphenix.protocol', name: 'ProtocolLib', version: '4.5.0'
-	compileOnly group: 'com.github.ProtocolSupport', name: 'ProtocolSupport', version: 'a82f2b4627'
+	runtimeDependencies group: 'io.papermc.paper', name: 'paper-api', version: '1.17-R0.1-SNAPSHOT'
+	runtimeDependencies group: 'me.clip', name: 'placeholderapi', version: '2.10.4'
+	runtimeDependencies group: 'com.comphenix.protocol', name: 'ProtocolLib', version: '4.5.0'
+	runtimeDependencies group: 'com.github.ProtocolSupport', name: 'ProtocolSupport', version: 'a82f2b4627'
+
+	implementation group: 'com.github.HurricaneGamesOrg', name: 'HurricaneGamesOrgPluginLib', version: '997fc2eb6b'
 }
 
 compileJava {
@@ -69,16 +80,24 @@ compileJava {
 }
 
 
-String relocatePrefix = group + "." + rootProject.name.toLowerCase() + ".zlibs."
+processResources {
+	filesMatching('plugin.yml') {
+		expand 'version': project.version
+	}
+}
 
 shadowJar {
-	doFirst {
-		new File(destinationDir, archiveName).delete()
-	}
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+
+	archiveClassifier = ""
 
 	from sourceSets.main.java.srcDirs
+	from 'LICENSE'
 
-	archiveName = jar.archiveName
+	exclude 'META-INF/**'
+	exclude 'module-info.class'
+
+	String relocatePrefix = group + '.' + rootProject.name.toLowerCase() + '.zlibs.'
 
 	relocate 'org.hurricanegames.commandlib', relocatePrefix + 'org.hurricanegames.commandlib'
 
@@ -87,11 +106,11 @@ shadowJar {
 
 
 task copyFinalJarToTarget(type: DefaultTask) {doLast{
-	Path targetJarDirectory = projectDirectoryPath.resolve("target")
+	Path targetJarDirectory = projectDirectoryPath.resolve('target')
 	Files.createDirectories(targetJarDirectory)
 	Files.copy(
-		shadowJar.archivePath.toPath().toAbsolutePath(),
-		targetJarDirectory.resolve(shadowJar.baseName + '.jar'),
+		shadowJar.archiveFile.get().getAsFile().toPath().toAbsolutePath(),
+		targetJarDirectory.resolve(shadowJar.archiveBaseName.get() + '.jar'),
 		java.nio.file.StandardCopyOption.REPLACE_EXISTING
 	)
 }}
@@ -101,3 +120,18 @@ compileJava.dependsOn(clean)
 jar.enabled = false
 jar.finalizedBy(shadowJar)
 shadowJar.finalizedBy(copyFinalJarToTarget)
+
+
+tasks.withType(GenerateModuleMetadata) {
+	enabled = false
+}
+
+publishing {
+	publications {
+		release(MavenPublication) {
+			from components.java
+
+			artifacts = [shadowJar]
+		}
+	}
+}

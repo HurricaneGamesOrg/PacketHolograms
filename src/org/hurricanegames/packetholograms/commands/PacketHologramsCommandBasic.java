@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.hurricanegames.commandlib.commands.CommandBasic;
 import org.hurricanegames.packetholograms.holograms.Hologram;
-import org.hurricanegames.packetholograms.utils.MiscUtils;
+import org.hurricanegames.pluginlib.commands.CommandBasic;
+import org.hurricanegames.pluginlib.utils.bukkit.MiscBukkitUtils;
 
 public abstract class PacketHologramsCommandBasic extends CommandBasic<PacketHologramsCommandHelper> {
 
-	public PacketHologramsCommandBasic(PacketHologramsCommandHelper helper) {
+	protected PacketHologramsCommandBasic(PacketHologramsCommandHelper helper) {
 		super(helper);
 	}
 
@@ -70,7 +70,7 @@ public abstract class PacketHologramsCommandBasic extends CommandBasic<PacketHol
 
 		@Override
 		protected String parseValue(String arg) {
-			return MiscUtils.colorize(arg);
+			return MiscBukkitUtils.colorize(arg);
 		}
 
 		@Override

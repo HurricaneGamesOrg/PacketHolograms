@@ -1,8 +1,8 @@
 package org.hurricanegames.packetholograms.commands;
 
 import org.bukkit.ChatColor;
-import org.hurricanegames.commandlib.commands.CommandResponseException;
 import org.hurricanegames.packetholograms.holograms.Hologram;
+import org.hurricanegames.pluginlib.commands.CommandResponseException;
 
 public class PacketHologramsHologramRemoveCommand extends PacketHologramsCommandBasic {
 

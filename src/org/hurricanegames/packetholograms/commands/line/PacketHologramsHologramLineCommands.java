@@ -1,7 +1,7 @@
 package org.hurricanegames.packetholograms.commands.line;
 
-import org.hurricanegames.commandlib.commands.CommandRouter;
 import org.hurricanegames.packetholograms.commands.PacketHologramsCommandHelper;
+import org.hurricanegames.pluginlib.commands.CommandRouter;
 
 public class PacketHologramsHologramLineCommands extends CommandRouter<PacketHologramsCommandHelper> {
 

@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
+import java.util.stream.IntStream;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
@@ -22,16 +23,15 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.Vector;
-import org.hurricanegames.commandlib.configurations.ConfigurationUtils;
-import org.hurricanegames.packetholograms.EntityIdAllocator;
+import org.hurricanegames.packetholograms.EntityIdGenerator;
 import org.hurricanegames.packetholograms.PacketHologramsPlugin;
 import org.hurricanegames.packetholograms.integrations.PlaceholderAPIIntergration;
 import org.hurricanegames.packetholograms.utils.MiscUtils;
 import org.hurricanegames.packetholograms.utils.MutableBoolean;
-import org.hurricanegames.packetholograms.utils.XZCoord;
+import org.hurricanegames.pluginlib.configurations.ConfigurationUtils;
+import org.hurricanegames.pluginlib.utils.bukkit.types.world.Coord2D;
 
 import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
@@ -48,7 +48,6 @@ public class HologramController {
 	protected static final String METADATA_KEY_VISIBLE_HOLOGRAMS = "PacketHolograms_VisibleHolograms";
 
 	protected final PacketHologramsPlugin plugin;
-	protected final EntityIdAllocator entityIdAllocator;
 	protected final PacketUtil packetutil;
 
 	protected final File storageFile;
@@ -56,15 +55,14 @@ public class HologramController {
 	protected final PlayerWorldTracker worldTracker = new PlayerWorldTracker(METADATA_KEY_CURRENT_WORLD);
 	protected final PlayerViewHologramsHandlerAttachListener viewHologramsAttachListener = new PlayerViewHologramsHandlerAttachListener();
 
-	public HologramController(PacketHologramsPlugin plugin, EntityIdAllocator entityIdAllocator, ProtocolManager protocollib) {
+	public HologramController(PacketHologramsPlugin plugin) {
 		this.plugin = plugin;
 		this.storageFile = new File(plugin.getDataFolder(), "storage.yml");
-		this.entityIdAllocator = entityIdAllocator;
-		this.packetutil = new PacketUtil(protocollib);
+		this.packetutil = new PacketUtil();
 	}
 
 	protected final Map<String, Hologram> hologramByName = new HashMap<>();
-	protected final Map<String, Map<XZCoord, Set<Hologram>>> hologramsByLocation = new ConcurrentHashMap<>();
+	protected final Map<String, Map<Coord2D, Set<Hologram>>> hologramsByLocation = new ConcurrentHashMap<>();
 
 	public Set<String> getHologramsNames() {
 		return Collections.unmodifiableSet(hologramByName.keySet());
@@ -86,7 +84,7 @@ public class HologramController {
 
 		addHologram0(hologram);
 
-		XZCoord chunkCoord = XZCoord.getChunkCoord(hologram.getLocation());
+		Coord2D chunkCoord = Coord2D.createChunkCoord(hologram.getLocation());
 		for (Connection connection : ProtocolSupportAPI.getConnections()) {
 			String world = connection.getMetadata(METADATA_KEY_CURRENT_WORLD);
 			if ((world == null) || !world.equals(hologram.getWorld())) {
@@ -113,12 +111,12 @@ public class HologramController {
 		}
 		hologramsByLocation
 		.computeIfAbsent(hologram.getWorld(), k -> new ConcurrentHashMap<>())
-		.computeIfAbsent(XZCoord.getChunkCoord(hologram.getLocation()), k -> Collections.newSetFromMap(new ConcurrentHashMap<>()))
+		.computeIfAbsent(Coord2D.createChunkCoord(hologram.getLocation()), k -> Collections.newSetFromMap(new ConcurrentHashMap<>()))
 		.add(hologram);
 	}
 
 	public void deleteHologram(Hologram hologram) {
-		XZCoord chunkCoord = XZCoord.getChunkCoord(hologram.getLocation());
+		Coord2D chunkCoord = Coord2D.createChunkCoord(hologram.getLocation());
 
 		String name = hologram.getName();
 		if (name != null) {
@@ -136,7 +134,9 @@ public class HologramController {
 			}
 			int[] entityIds = chunkHolograms.remove(hologram);
 			if (entityIds != null) {
-				connection.sendPacket(packetutil.createEntityDestroyPacket(entityIds));
+				for (int entityId : entityIds) {
+					connection.sendPacket(packetutil.createEntityDestroyPacket(entityId));
+				}
 			}
 		}
 
@@ -165,8 +165,8 @@ public class HologramController {
 		return newHologram;
 	}
 
-	protected static Map<Hologram, int[]> getPlayerChunkHologramMap(Connection connection, XZCoord chunkcoord) {
-		Map<XZCoord, Map<Hologram, int[]>> visible = connection.getMetadata(METADATA_KEY_VISIBLE_HOLOGRAMS);
+	protected static Map<Hologram, int[]> getPlayerChunkHologramMap(Connection connection, Coord2D chunkcoord) {
+		Map<Coord2D, Map<Hologram, int[]>> visible = connection.getMetadata(METADATA_KEY_VISIBLE_HOLOGRAMS);
 		if (visible == null) {
 			return null;
 		}
@@ -178,7 +178,7 @@ public class HologramController {
 		int[] entityIds = new int[lines.size()];
 		Vector location = hologram.getLocation().clone();
 		for (int i = 0; i < lines.size(); i++) {
-			int entityId = entityIdAllocator.allocate();
+			int entityId = EntityIdGenerator.INSTANCE.nextId();
 			entityIds[i] = entityId;
 			packets.add(packetutil.createEntitySpawnPacket(PacketUtil.ARMORSTAND_LIVING_TYPE_ID, MiscUtils.fastRandomUUID(), entityId, location));
 			packets.add(packetutil.createEntityMetadataPacket(entityId, Arrays.asList(
@@ -249,28 +249,30 @@ public class HologramController {
 		}
 
 		protected void handleChunkUnload(PacketEvent event, PacketContainer packet) {
-			Map<XZCoord, Map<Hologram, int[]>> visible = connection.getMetadata(METADATA_KEY_VISIBLE_HOLOGRAMS);
+			Map<Coord2D, Map<Hologram, int[]>> visible = connection.getMetadata(METADATA_KEY_VISIBLE_HOLOGRAMS);
 			if (visible == null) {
 				return;
 			}
 
 			StructureModifier<Integer> integers = packet.getIntegers();
-			Map<Hologram, int[]> chunkHolograms = visible.remove(new XZCoord(integers.read(0), integers.read(1)));
+			Map<Hologram, int[]> chunkHolograms = visible.remove(new Coord2D(integers.read(0), integers.read(1)));
 			if (chunkHolograms == null) {
 				return;
 			}
 
 			List<Object> packets = event.getPackets();
 			for (int[] entityIds : chunkHolograms.values()) {
-				packets.add(packetutil.createEntityDestroyPacket(entityIds));
+				for (int entityId : entityIds) {
+					packets.add(packetutil.createEntityDestroyPacket(entityId));
+				}
 			}
 		}
 
 		protected void handleChunkData(PacketEvent event, PacketContainer packet, String world) {
-			Map<XZCoord, Map<Hologram, int[]>> visible = connection.computeMetadata(METADATA_KEY_VISIBLE_HOLOGRAMS, (k, v) -> v != null ? v : new HashMap<>());
+			Map<Coord2D, Map<Hologram, int[]>> visible = connection.computeMetadata(METADATA_KEY_VISIBLE_HOLOGRAMS, (k, v) -> v != null ? v : new HashMap<>());
 			MutableBoolean wasntLoaded = new MutableBoolean();
 			StructureModifier<Integer> integers = packet.getIntegers();
-			XZCoord chunkCoord = new XZCoord(integers.read(0), integers.read(1));
+			Coord2D chunkCoord = new Coord2D(integers.read(0), integers.read(1));
 			Map<Hologram, int[]> chunkHolograms = visible.compute(chunkCoord, (k, v) -> {
 				if (v != null) {
 					return v;
@@ -339,10 +341,11 @@ public class HologramController {
 		for (Connection connection : ProtocolSupportAPI.getConnections()) {
 			connection.removePacketListener(connection.removeMetadata(METADATA_KEY_PACKET_LISTENER));
 			connection.removeMetadata(METADATA_KEY_CURRENT_WORLD);
-			connection.<Map<XZCoord, Map<Hologram, int[]>>>removeMetadata(METADATA_KEY_VISIBLE_HOLOGRAMS).values().stream()
+			connection.<Map<Coord2D, Map<Hologram, int[]>>>removeMetadata(METADATA_KEY_VISIBLE_HOLOGRAMS).values().stream()
 			.map(Map::values)
 			.flatMap(Collection::stream)
-			.forEach(entityIds -> connection.sendPacket(packetutil.createEntityDestroyPacket(entityIds)));
+			.flatMapToInt(IntStream::of)
+			.forEach(entityId -> connection.sendPacket(packetutil.createEntityDestroyPacket(entityId)));
 		}
 	}
 

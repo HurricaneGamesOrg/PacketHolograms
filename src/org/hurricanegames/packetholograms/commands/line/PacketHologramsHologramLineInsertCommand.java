@@ -3,10 +3,10 @@ package org.hurricanegames.packetholograms.commands.line;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hurricanegames.commandlib.commands.CommandResponseException;
 import org.hurricanegames.packetholograms.commands.PacketHologramsCommandBasic;
 import org.hurricanegames.packetholograms.commands.PacketHologramsCommandHelper;
 import org.hurricanegames.packetholograms.holograms.Hologram;
+import org.hurricanegames.pluginlib.commands.CommandResponseException;
 
 public class PacketHologramsHologramLineInsertCommand extends PacketHologramsCommandBasic {
 

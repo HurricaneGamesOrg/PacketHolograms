@@ -4,18 +4,14 @@ import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.hurricanegames.pluginlib.utils.bukkit.types.UnknownOfflinePlayer;
 
 import protocolsupport.api.Connection;
 import protocolsupport.api.utils.Profile;
 
 public class MiscUtils {
-
-	public static String colorize(String string) {
-		return ChatColor.translateAlternateColorCodes('&', string);
-	}
 
 	public static UUID fastRandomUUID() {
 		Random random = ThreadLocalRandom.current();
@@ -28,7 +24,7 @@ public class MiscUtils {
 			return player;
 		}
 		Profile profile = connection.getProfile();
-		return new UUIDNameOfflinePlayer(profile.getUUID(), profile.getName());
+		return new UnknownOfflinePlayer(profile.getUUID(), profile.getName());
 	}
 
 }

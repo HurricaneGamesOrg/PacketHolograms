@@ -1,11 +1,11 @@
 name: PacketHolograms
 main: org.hurricanegames.packetholograms.PacketHologramsPlugin
-version: 1.0
-api-version: 1.15
-author: _Shevchik_
+api-version: 1.17
 load: STARTUP
 depend: [ProtocolSupport, ProtocolLib]
 softdepend: [PlaceholderAPI]
+version: ${version}
+
 commands:
   holograms:
     description: All PacketHolograms commands
@@ -13,3 +13,5 @@ commands:
     - hologram
     - holo
     usage: '/holo'
+
+author: _Shevchik_
